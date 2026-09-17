@@ -42,7 +42,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/ds-lab1:latest
       
-            - name: Trigger Render deploy
+      - name: Trigger Render deploy
         run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
 
       - name: Wait for service to be ready
