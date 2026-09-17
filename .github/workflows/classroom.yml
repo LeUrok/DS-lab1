@@ -41,6 +41,24 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/ds-lab1:latest
+      
+            - name: Trigger Render deploy
+        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+
+      - name: Wait for service to be ready
+        run: |
+          echo "Waiting for Render service..."
+          for i in {1..30}; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.SERVICE_URL }}/api/v1/persons" || true)
+            if [ "$code" = "200" ]; then
+              echo "Service is up!"
+              exit 0
+            fi
+            echo "Attempt $i: got $code, retrying in 10s..."
+            sleep 10
+          done
+          echo "Service did not respond in time"
+          exit 1
 
       - name: Run API Tests
         uses: matt-ball/newman-action@master
